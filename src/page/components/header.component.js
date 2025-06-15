@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import { v4 as uuidv4 } from "uuid";
+import PropTypes from "prop-types";
 
 import { useState } from "react";
 
@@ -8,6 +9,8 @@ import { Button } from "./../../components/button.component";
 import { TextField } from "./../../components/text-field.component";
 import { Space } from "./../../components/space.component";
 import { Notification } from "./../../components/notification.component";
+import { Divider } from "./../../components/divider.component";
+import { Dropdown } from "./../../components/dropdown.component";
 
 const StyledTitle = styled.h3`
   display: flex;
@@ -27,8 +30,30 @@ const StyledButton = styled(Button)`
   margin-bottom: 1rem;
 `;
 
-export const Header = ({ todoList, ordinalNumber, onAddTodoList }) => {
+const StyledDiv = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+export const Header = ({
+  todoCount,
+  completedCount,
+  uncompletedCount,
+  onAddTodoList,
+}) => {
   const [input, setInput] = useState("");
+
+  const items = [
+    {
+      label: <p>{completedCount} Hoàn thành</p>,
+      key: completedCount,
+    },
+    {
+      label: <p>{uncompletedCount} Chưa hoàn thành</p>,
+      key: uncompletedCount,
+    },
+  ];
 
   const handleInputChange = (e) => setInput(e.target.value);
 
@@ -43,16 +68,13 @@ export const Header = ({ todoList, ordinalNumber, onAddTodoList }) => {
       return;
     }
 
-    ordinalNumber += 1;
-
     onAddTodoList((prev) => [
-      ...prev,
       {
         id: uuidv4(),
-        ordinal: ordinalNumber,
         name: newTodo,
         completed: false,
       },
+      ...prev,
     ]);
 
     Notification.success({ message: "Thêm công việc thành công" });
@@ -63,24 +85,37 @@ export const Header = ({ todoList, ordinalNumber, onAddTodoList }) => {
     <>
       <StyledTitle>Danh Sách Công Việc</StyledTitle>
 
-      <Space>
-        <StyledTextField
-          placeholder="Nhập công việc..."
-          onChange={handleInputChange}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") handleAddInput(input);
-          }}
-          value={input}
-        />
+      <StyledDiv>
+        <Space>
+          <StyledTextField
+            placeholder="Nhập công việc..."
+            onChange={handleInputChange}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleAddInput(input);
+            }}
+            value={input}
+          />
 
-        <StyledButton
-          disabled={!input}
-          type="primary"
-          onClick={() => handleAddInput()}
-        >
-          Thêm
-        </StyledButton>
-      </Space>
+          <StyledButton
+            disabled={!input}
+            type="primary"
+            onClick={() => handleAddInput()}
+          >
+            Thêm
+          </StyledButton>
+        </Space>
+
+        <Dropdown menu={{ items }} trigger={["hover"]}>
+          <p>{todoCount} Công việc</p>
+        </Dropdown> 
+      </StyledDiv>
     </>
   );
+};
+
+Header.propTypes = {
+  todoCount: PropTypes.number.isRequired,
+  completedCount: PropTypes.number.isRequired,
+  uncompletedCount: PropTypes.number.isRequired,
+  onAddTodoList: PropTypes.func.isRequired,
 };

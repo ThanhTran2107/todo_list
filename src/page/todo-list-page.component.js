@@ -5,8 +5,10 @@ import { Header } from "./components/header.component";
 import styled from "styled-components";
 import { TodoList } from "./components/todo-list.component";
 
-import { useEffect, useRef, useState } from "react";
-import { map } from "lodash-es";
+import { useEffect, useState } from "react";
+import { map, filter } from "lodash-es";
+
+import { getLocalStorage, setLocalStorage } from "../utilities/services/common";
 
 const Wrapper = styled(Space)`
   display: flex;
@@ -15,9 +17,10 @@ const Wrapper = styled(Space)`
 
 export const TodoListPage = () => {
   const [todoList, setTodoList] = useState([]);
-  const ordinalNumber = useRef(0);
+  const [completedCount, setCompletedCount] = useState(0);
+  const [uncompletedCount, setUncompletedCount] = useState(0);
 
-  const onCompleteHandler = (id) => {
+  const onCompleteTask = (id) => {
     setTodoList((prev) => {
       const updatedList = map(prev, (todo) => {
         if (todo.id === id) {
@@ -26,7 +29,7 @@ export const TodoListPage = () => {
         return todo;
       });
 
-      localStorage.setItem("todoList", JSON.stringify(updatedList));
+      setLocalStorage("todoList", updatedList);
 
       return updatedList;
     });
@@ -36,29 +39,52 @@ export const TodoListPage = () => {
     });
   };
 
+  const onDeleteTask = (id) => {
+    if (!id) return;
+
+    const updatedList = filter(todoList, (todo) => todo.id !== id);
+
+    setTodoList(updatedList);
+
+    Notification.success({
+      message: "Xoá công việc thành công",
+    });
+  };
+
+  const updateStatistics = (list) => {
+    const completedCount = filter(list, (todo) => todo.completed === true);
+    const uncompletedCount = filter(list, (todo) => todo.completed === false);
+
+    setCompletedCount(completedCount.length);
+    setUncompletedCount(uncompletedCount.length);
+  };
+
   useEffect(() => {
-    const currentTodoList = JSON.parse(localStorage.getItem("todoList")) || [];
+    const currentTodoList = getLocalStorage("todoList");
 
+    updateStatistics(currentTodoList);
     setTodoList(currentTodoList);
-
-    ordinalNumber.current = currentTodoList.length
-      ? Math.max(map(...currentTodoList, (e) => e.ordinal))
-      : 0;
   }, []);
 
   useEffect(() => {
-    localStorage.setItem("todoList", JSON.stringify([...todoList]));
+    updateStatistics(todoList);
+    setLocalStorage("todoList", [...todoList]);
   }, [todoList]);
-  
+
   return (
     <Wrapper direction="vertical">
       <Header
-        todoList={todoList}
+        todoCount={todoList.length}
+        completedCount={completedCount}
+        uncompletedCount={uncompletedCount}
         onAddTodoList={setTodoList}
-        ordinalNumber={ordinalNumber.current}
       />
 
-      <TodoList todoList={todoList} onComplete={onCompleteHandler} />
+      <TodoList
+        todoList={todoList}
+        onComplete={onCompleteTask}
+        onDelete={onDeleteTask}
+      />
     </Wrapper>
   );
 };
