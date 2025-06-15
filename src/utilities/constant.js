@@ -21,6 +21,7 @@ export const COLORS = Object.freeze({
 
   //GREEN COLORS
   GREEN: "green",
+  BRIGHT_GREEN: "#47e247",
 
   //YELLOW COLORS
   CYBER_YELLOW: "#ffd809",
