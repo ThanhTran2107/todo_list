@@ -6,9 +6,13 @@ import styled from "styled-components";
 import { TodoList } from "./components/todo-list.component";
 
 import { useEffect, useState } from "react";
-import { map, filter } from "lodash-es";
+import { map, filter, isEmpty } from "lodash-es";
 
-import { getLocalStorage, setLocalStorage } from "../utilities/services/common";
+import {
+  getLocalStorage,
+  setLocalStorage,
+  removeVietnameseTones,
+} from "../utilities/services/common";
 
 const Wrapper = styled(Space)`
   display: flex;
@@ -17,8 +21,24 @@ const Wrapper = styled(Space)`
 
 export const TodoListPage = () => {
   const [todoList, setTodoList] = useState([]);
+  const [tempTodoList, setTempTodoList] = useState([]);
   const [completedCount, setCompletedCount] = useState(0);
   const [uncompletedCount, setUncompletedCount] = useState(0);
+
+  const updateStatistics = (list) => {
+    const completedCount = filter(list, (todo) => todo.completed === true);
+    const uncompletedCount = filter(list, (todo) => todo.completed === false);
+
+    setCompletedCount(completedCount.length);
+    setUncompletedCount(uncompletedCount.length);
+  };
+
+  const resetOriginalData = () => {
+    if (isEmpty(tempTodoList)) return;
+
+    setTodoList(tempTodoList);
+    setTempTodoList([]);
+  };
 
   const onCompleteTask = (id) => {
     setTodoList((prev) => {
@@ -51,12 +71,17 @@ export const TodoListPage = () => {
     });
   };
 
-  const updateStatistics = (list) => {
-    const completedCount = filter(list, (todo) => todo.completed === true);
-    const uncompletedCount = filter(list, (todo) => todo.completed === false);
+  const onSearchTasksByName = (name) => {
+    const searchName = removeVietnameseTones(name.trim());
 
-    setCompletedCount(completedCount.length);
-    setUncompletedCount(uncompletedCount.length);
+    if (!searchName) return;
+
+    const found = filter(todoList, (todo) =>
+      removeVietnameseTones(todo.name).includes(searchName)
+    );
+
+    setTempTodoList(todoList);
+    setTodoList(found);
   };
 
   useEffect(() => {
@@ -77,7 +102,10 @@ export const TodoListPage = () => {
         todoCount={todoList.length}
         completedCount={completedCount}
         uncompletedCount={uncompletedCount}
+        isSearching={!isEmpty(tempTodoList)}
         onAddTodoList={setTodoList}
+        onSearchTasksByName={onSearchTasksByName}
+        handleResetData={resetOriginalData}
       />
 
       <TodoList

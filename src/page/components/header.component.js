@@ -4,15 +4,18 @@ import PropTypes from "prop-types";
 
 import { useState } from "react";
 
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSearch } from "@fortawesome/free-solid-svg-icons";
+
 import { COLORS } from "../../utilities/constant";
 import { Button } from "./../../components/button.component";
 import { TextField } from "./../../components/text-field.component";
 import { Space } from "./../../components/space.component";
 import { Notification } from "./../../components/notification.component";
-import { Divider } from "./../../components/divider.component";
 import { Dropdown } from "./../../components/dropdown.component";
+import { isEmpty } from "lodash-es";
 
-const StyledTitle = styled.h3`
+const Title = styled.h3`
   display: flex;
   justify-content: center;
   font-size: 2rem;
@@ -22,12 +25,23 @@ const StyledTitle = styled.h3`
 const StyledTextField = styled(TextField)`
   width: 30rem;
   height: 2.5rem;
-  margin-bottom: 1rem;
 `;
 
-const StyledButton = styled(Button)`
+const AddButton = styled(Button)`
   height: 2.5rem;
-  margin-bottom: 1rem;
+  cursor: pointer;
+`;
+
+const SearchButton = styled(FontAwesomeIcon)`
+  display: flex;
+  align-seft: center;
+  height: 1.5rem;
+  color: ${COLORS.BRIGHT_BLUE};
+  cursor: pointer;
+
+  &:hover {
+    color: ${COLORS.BLUE};
+  }
 `;
 
 const StyledDiv = styled.div`
@@ -40,7 +54,10 @@ export const Header = ({
   todoCount,
   completedCount,
   uncompletedCount,
+  isSearching,
+  handleResetData,
   onAddTodoList,
+  onSearchTasksByName,
 }) => {
   const [input, setInput] = useState("");
 
@@ -55,9 +72,13 @@ export const Header = ({
     },
   ];
 
-  const handleInputChange = (e) => setInput(e.target.value);
+  const handleInputChange = (e) => {
+    if (isEmpty(e.target.value)) handleResetData();
 
-  const handleAddInput = () => {
+    setInput(e.target.value);
+  };
+
+  const onAddNewTasks = () => {
     const newTodo = input.trim();
 
     if (!newTodo) {
@@ -83,7 +104,7 @@ export const Header = ({
 
   return (
     <>
-      <StyledTitle>Danh Sách Công Việc</StyledTitle>
+      <Title>Danh Sách Công Việc</Title>
 
       <StyledDiv>
         <Space>
@@ -91,23 +112,28 @@ export const Header = ({
             placeholder="Nhập công việc..."
             onChange={handleInputChange}
             onKeyDown={(e) => {
-              if (e.key === "Enter") handleAddInput(input);
+              if (!isEmpty(input) && e.key === "Enter") onAddNewTasks();
             }}
             value={input}
           />
 
-          <StyledButton
-            disabled={!input}
+          <AddButton
+            disabled={!input || isSearching}
             type="primary"
-            onClick={() => handleAddInput()}
+            onClick={() => onAddNewTasks()}
           >
             Thêm
-          </StyledButton>
+          </AddButton>
+
+          <SearchButton
+            icon={faSearch}
+            onClick={() => onSearchTasksByName(input)}
+          />
         </Space>
 
         <Dropdown menu={{ items }} trigger={["hover"]}>
           <p>{todoCount} Công việc</p>
-        </Dropdown> 
+        </Dropdown>
       </StyledDiv>
     </>
   );
@@ -117,5 +143,8 @@ Header.propTypes = {
   todoCount: PropTypes.number.isRequired,
   completedCount: PropTypes.number.isRequired,
   uncompletedCount: PropTypes.number.isRequired,
+  isSearching: PropTypes.bool,
+  handleResetData: PropTypes.func.isRequired,
   onAddTodoList: PropTypes.func.isRequired,
+  onSearchTasksByName: PropTypes.func.isRequired,
 };
