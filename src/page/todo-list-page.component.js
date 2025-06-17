@@ -1,7 +1,9 @@
 import { Space } from "../components/space.component";
 import { Notification } from "../components/notification.component";
 import { Header } from "./components/header.component";
-import { Modal } from "./../components/modal.component";
+import { ConfirmDeletionModal } from "./components/confirm-deletion-modal.component";
+
+import { LOCALSTORAGE_KEYS } from "../utilities/constant";
 
 import styled from "styled-components";
 import { TodoList } from "./components/todo-list.component";
@@ -20,6 +22,8 @@ const Wrapper = styled(Space)`
   margin: 1rem;
 `;
 
+const { TODO_LIST } = LOCALSTORAGE_KEYS;
+
 export const TodoListPage = () => {
   const [todoList, setTodoList] = useState([]);
   const [originalList, setOriginalList] = useState([]);
@@ -35,7 +39,7 @@ export const TodoListPage = () => {
     setUncompletedCount(uncompletedCount.length);
   };
 
-  const resetOriginalData = () => {
+  const handleResetOriginalData = () => {
     if (isEmpty(originalList)) return;
 
     setTodoList(originalList);
@@ -43,7 +47,7 @@ export const TodoListPage = () => {
     setSearchedList([]);
   };
 
-  const resetSearchedData = () => setTodoList(searchedList);
+  const handleResetSearchedData = () => setTodoList(searchedList);
 
   const applyFilter = (data, value) => {
     switch (value) {
@@ -61,17 +65,7 @@ export const TodoListPage = () => {
     }
   };
 
-  const showConfirmDeletion = (onOk) => {
-    Modal.confirm({
-      title: "Bạn có chắc chắn muốn xóa công việc này?",
-      okText: "Xóa",
-      okType: "danger",
-      cancelText: "Hủy",
-      onOk,
-    });
-  };
-
-  const onCompleteTask = (id) => {
+  const handleCompleteTask = (id) => {
     const updateItemStatus = (list) =>
       map(list, (todo) => {
         if (todo.id === id) return { ...todo, completed: !todo.completed };
@@ -92,10 +86,10 @@ export const TodoListPage = () => {
     });
   };
 
-  const onDeleteTask = (id) => {
+  const handleDeleteTask = (id) => {
     if (!id) return;
 
-    showConfirmDeletion(() => {
+    ConfirmDeletionModal(() => {
       const deleteItem = (list) => filter(list, (todo) => todo.id !== id);
 
       const updatedTodoList = deleteItem(todoList);
@@ -112,7 +106,7 @@ export const TodoListPage = () => {
     });
   };
 
-  const onSearchTasksByName = (name) => {
+  const handleSearchTasksByName = (name) => {
     const searchName = removeVietnameseTones(name.trim());
 
     if (!searchName) return;
@@ -126,7 +120,7 @@ export const TodoListPage = () => {
     setSearchedList(found);
   };
 
-  const onFilterData = (value) => {
+  const handleFilterData = (value) => {
     const hasSearch = !isEmpty(searchedList);
     const hasOriginal = !isEmpty(originalList);
 
@@ -134,9 +128,9 @@ export const TodoListPage = () => {
 
     if (value === 0) {
       if (hasSearch) {
-        resetSearchedData();
+        handleResetSearchedData();
       } else {
-        resetOriginalData();
+        handleResetOriginalData();
       }
 
       return;
@@ -153,8 +147,29 @@ export const TodoListPage = () => {
     setTodoList(result);
   };
 
+  const handleUpdateTaskName = (updatedTaskName) => {
+    const updatedItemName = (list) =>
+      map(list, (todo) => {
+        if (todo.id === updatedTaskName.id) return { ...updatedTaskName };
+
+        return todo;
+      });
+
+    const updatedTodoList = updatedItemName(todoList);
+    const updatedSearchedList = updatedItemName(searchedList);
+    const updatedOriginalList = updatedItemName(originalList);
+
+    setTodoList(updatedTodoList);
+    setSearchedList(updatedSearchedList);
+    setOriginalList(updatedOriginalList);
+
+    Notification.success({
+      message: "Cập nhật công việc thành công!",
+    });
+  };
+
   useEffect(() => {
-    const currentTodoList = getLocalStorage("todoList");
+    const currentTodoList = getLocalStorage(TODO_LIST);
 
     updateStatistics(currentTodoList);
     setTodoList(currentTodoList);
@@ -162,7 +177,7 @@ export const TodoListPage = () => {
 
   useEffect(() => {
     updateStatistics(todoList);
-    setLocalStorage("todoList", [...todoList]);
+    setLocalStorage(TODO_LIST, [...todoList]);
   }, [todoList]);
 
   return (
@@ -173,15 +188,16 @@ export const TodoListPage = () => {
         uncompletedCount={uncompletedCount}
         isSearching={!isEmpty(originalList)}
         onAddTodoList={setTodoList}
-        onSearchTasksByName={onSearchTasksByName}
-        onResetOriginalData={resetOriginalData}
-        onFilterData={onFilterData}
+        onSearchTasksByName={handleSearchTasksByName}
+        onResetOriginalData={handleResetOriginalData}
+        onFilterData={handleFilterData}
       />
 
       <TodoList
         todoList={todoList}
-        onComplete={onCompleteTask}
-        onDelete={onDeleteTask}
+        onComplete={handleCompleteTask}
+        onDelete={handleDeleteTask}
+        onUpdateTaskName={handleUpdateTaskName}
       />
     </Wrapper>
   );

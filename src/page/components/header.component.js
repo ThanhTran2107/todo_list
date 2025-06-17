@@ -90,7 +90,7 @@ export const Header = ({
     setInput(e.target.value);
   };
 
-  const onAddNewTasks = () => {
+  const handleClickAddNewTasks = () => {
     const newTodo = input.trim();
 
     if (!newTodo) {
@@ -124,7 +124,8 @@ export const Header = ({
             placeholder="Nhập công việc..."
             onChange={handleInputChange}
             onKeyDown={(e) => {
-              if (!isEmpty(input) && e.key === "Enter") onAddNewTasks();
+              if (!isEmpty(input) && e.key === "Enter")
+                handleClickAddNewTasks();
             }}
             value={input}
           />
@@ -132,7 +133,7 @@ export const Header = ({
           <AddButton
             disabled={!input || isSearching}
             type="primary"
-            onClick={() => onAddNewTasks()}
+            onClick={() => handleClickAddNewTasks()}
           >
             Thêm
           </AddButton>

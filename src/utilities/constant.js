@@ -1,3 +1,7 @@
+export const LOCALSTORAGE_KEYS = Object.freeze({
+  TODO_LIST: "todoList",
+});
+
 export const COLORS = Object.freeze({
   //NEUTRAL COLORS
   BLACK: "#000000",

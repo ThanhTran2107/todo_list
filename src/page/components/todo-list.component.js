@@ -1,13 +1,21 @@
 import { Table } from "./../../components/table.component";
 import { Divider } from "./../../components/divider.component";
 import { Space } from "./../../components/space.component";
+import { TextField } from "../../components/text-field.component";
 
 import { COLORS } from "../../utilities/constant";
 
+import { isEmpty, trim } from "lodash-es";
+import { useRef, useState } from "react";
 import styled from "styled-components";
 import PropTypes from "prop-types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCheck, faRedo, faTrash } from "@fortawesome/free-solid-svg-icons";
+import {
+  faCheck,
+  faRedo,
+  faTrash,
+  faEdit,
+} from "@fortawesome/free-solid-svg-icons";
 
 const { Column } = Table;
 
@@ -41,7 +49,56 @@ const DeleteButton = styled(FontAwesomeIcon)`
   }
 `;
 
-export const TodoList = ({ todoList, onComplete, onDelete }) => {
+const EditButton = styled(FontAwesomeIcon)`
+  font-size: 1.3rem;
+  cursor: pointer;
+  color: ${COLORS.BRIGHT_BLUE};
+
+  &:hover {
+    color: ${COLORS.BLUE};
+  }
+`;
+
+const SaveButton = styled(FontAwesomeIcon)`
+  font-size: 1.3rem;
+  cursor: pointer;
+  color: ${COLORS.BRIGHT_BLUE};
+
+  &:hover {
+    color: ${COLORS.BLUE};
+  }
+`;
+
+const RowName = styled.div`
+  display: flex;
+  justify-content: space-between;
+`;
+
+export const TodoList = ({
+  todoList,
+  onComplete,
+  onDelete,
+  onUpdateTaskName,
+}) => {
+  const [editRowId, setEditRowId] = useState(null);
+  const inputRef = useRef(null);
+
+  const handleEditButtonClick = (id) => setEditRowId(id);
+
+  const handleSaveButtonClick = (currentData) => {
+    const { input } = inputRef.current;
+    const newName = trim(input.value);
+
+    if (newName !== "" && newName !== currentData.name) {
+      const updatedTaskName = { ...currentData, name: newName };
+
+      onUpdateTaskName(updatedTaskName);
+      setEditRowId(null);
+    } else {
+      setEditRowId(null);
+    }
+  };
+
   return (
     <Table dataSource={todoList}>
       <Column title="STT" key="index" render={(_, __, index) => index + 1} />
@@ -49,15 +106,43 @@ export const TodoList = ({ todoList, onComplete, onDelete }) => {
         title="Tên Công Việc"
         key="name"
         render={(_, record) => (
-          <span
-            style={{
-              textDecoration: record.completed ? "line-through" : "none",
-            }}
-          >
-            {record.name}
-          </span>
+          <RowName>
+            {editRowId === record.id ? (
+              <Space>
+                <TextField
+                  type="text"
+                  defaultValue={record.name}
+                  ref={inputRef}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") handleSaveButtonClick(record);
+                  }}
+                />
+
+                <SaveButton
+                  icon={faCheck}
+                  onClick={() => handleSaveButtonClick(record)}
+                />
+              </Space>
+            ) : (
+              <>
+                <span
+                  style={{
+                    textDecoration: record.completed ? "line-through" : "none",
+                  }}
+                >
+                  {record.name}
+                </span>
+
+                <EditButton
+                  icon={faEdit}
+                  onClick={() => handleEditButtonClick(record.id)}
+                />
+              </>
+            )}
+          </RowName>
         )}
       />
+
       <Column
         align="center"
         title="Trạng thái"
@@ -106,4 +191,5 @@ TodoList.propTypes = {
   ).isRequired,
   onComplete: PropTypes.func.isRequired,
   onDelete: PropTypes.func.isRequired,
+  onUpdateTaskName: PropTypes.func.isRequired,
 };
