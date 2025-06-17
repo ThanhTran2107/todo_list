@@ -3,7 +3,7 @@ import { Notification } from "../components/notification.component";
 import { Header } from "./components/header.component";
 import { ConfirmDeletionModal } from "./components/confirm-deletion-modal.component";
 
-import { LOCALSTORAGE_KEYS } from "../utilities/constant";
+import { LOCALSTORAGE_KEYS, MODAL_TITLES } from "../utilities/constant";
 
 import styled from "styled-components";
 import { TodoList } from "./components/todo-list.component";
@@ -23,6 +23,7 @@ const Wrapper = styled(Space)`
 `;
 
 const { TODO_LIST } = LOCALSTORAGE_KEYS;
+const { DELETE_ALL_TASKS, DELETE_A_TASK } = MODAL_TITLES;
 
 export const TodoListPage = () => {
   const [todoList, setTodoList] = useState([]);
@@ -39,16 +40,6 @@ export const TodoListPage = () => {
     setUncompletedCount(uncompletedCount.length);
   };
 
-  const handleResetOriginalData = () => {
-    if (isEmpty(originalList)) return;
-
-    setTodoList(originalList);
-    setOriginalList([]);
-    setSearchedList([]);
-  };
-
-  const handleResetSearchedData = () => setTodoList(searchedList);
-
   const applyFilter = (data, value) => {
     switch (value) {
       case 0:
@@ -64,6 +55,16 @@ export const TodoListPage = () => {
         return data;
     }
   };
+
+  const handleResetOriginalData = () => {
+    if (isEmpty(originalList)) return;
+
+    setTodoList(originalList);
+    setOriginalList([]);
+    setSearchedList([]);
+  };
+
+  const handleResetSearchedData = () => setTodoList(searchedList);
 
   const handleCompleteTask = (id) => {
     const updateItemStatus = (list) =>
@@ -83,26 +84,6 @@ export const TodoListPage = () => {
 
     Notification.success({
       message: "Cập nhật trạng thái công việc thành công!",
-    });
-  };
-
-  const handleDeleteTask = (id) => {
-    if (!id) return;
-
-    ConfirmDeletionModal(() => {
-      const deleteItem = (list) => filter(list, (todo) => todo.id !== id);
-
-      const updatedTodoList = deleteItem(todoList);
-      const updatedSearchedList = deleteItem(searchedList);
-      const updatedOriginalList = deleteItem(originalList);
-
-      setTodoList(updatedTodoList);
-      setOriginalList(updatedOriginalList);
-      setSearchedList(updatedSearchedList);
-
-      Notification.success({
-        message: "Xoá công việc thành công!",
-      });
     });
   };
 
@@ -168,6 +149,40 @@ export const TodoListPage = () => {
     });
   };
 
+  const handleDeleteTask = (id) => {
+    ConfirmDeletionModal({
+      onOk: () => {
+        const deleteItem = (list) => filter(list, (todo) => todo.id !== id);
+
+        const updatedTodoList = deleteItem(todoList);
+        const updatedSearchedList = deleteItem(searchedList);
+        const updatedOriginalList = deleteItem(originalList);
+
+        setTodoList(updatedTodoList);
+        setOriginalList(updatedOriginalList);
+        setSearchedList(updatedSearchedList);
+
+        Notification.success({
+          message: "Xoá công việc thành công!",
+        });
+      },
+      title: DELETE_A_TASK,
+    });
+  };
+
+  const handleDeleteAllTasks = () => {
+    ConfirmDeletionModal({
+      onOk: () => {
+        setTodoList([]);
+        setOriginalList([]);
+        setSearchedList([]);
+
+        Notification.success({ message: "Xóa tất cả công việc thành công!" });
+      },
+      title: DELETE_ALL_TASKS,
+    });
+  };
+
   useEffect(() => {
     const currentTodoList = getLocalStorage(TODO_LIST);
 
@@ -187,10 +202,12 @@ export const TodoListPage = () => {
         completedCount={completedCount}
         uncompletedCount={uncompletedCount}
         isSearching={!isEmpty(originalList)}
+        hasCurrentTasks={todoList.length > 0 || originalList.length > 0}
         onAddTodoList={setTodoList}
         onSearchTasksByName={handleSearchTasksByName}
         onResetOriginalData={handleResetOriginalData}
         onFilterData={handleFilterData}
+        onDeleteAllTasks={handleDeleteAllTasks}
       />
 
       <TodoList

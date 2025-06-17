@@ -33,6 +33,11 @@ const AddButton = styled(Button)`
   cursor: pointer;
 `;
 
+const DeleteAllButton = styled(Button)`
+  height: 2.5rem;
+  cursor: pointer;
+`;
+
 const SearchButton = styled(FontAwesomeIcon)`
   display: flex;
   align-seft: center;
@@ -60,10 +65,12 @@ export const Header = ({
   completedCount,
   uncompletedCount,
   isSearching,
+  hasCurrentTasks,
   onResetOriginalData,
   onAddTodoList,
   onSearchTasksByName,
   onFilterData,
+  onDeleteAllTasks,
 }) => {
   const [input, setInput] = useState("");
 
@@ -138,6 +145,13 @@ export const Header = ({
             Thêm
           </AddButton>
 
+          <DeleteAllButton
+            disabled={todoCount === 0}
+            onClick={() => onDeleteAllTasks()}
+          >
+            Xóa tất cả
+          </DeleteAllButton>
+
           <SearchButton
             icon={faSearch}
             onClick={() => onSearchTasksByName(input)}
@@ -154,6 +168,7 @@ export const Header = ({
             style={{ width: "10rem" }}
             options={options}
             onChange={(value) => onFilterData(value)}
+            disabled={!hasCurrentTasks}
           />
         </Space>
       </HeaderContainer>
@@ -166,8 +181,10 @@ Header.propTypes = {
   completedCount: PropTypes.number.isRequired,
   uncompletedCount: PropTypes.number.isRequired,
   isSearching: PropTypes.bool,
+  hasCurrentTasks: PropTypes.bool,
   onResetOriginalData: PropTypes.func.isRequired,
   onAddTodoList: PropTypes.func.isRequired,
   onSearchTasksByName: PropTypes.func.isRequired,
   onFilterData: PropTypes.func.isRequired,
+  onDeleteAllTasks: PropTypes.func.isRequired,
 };

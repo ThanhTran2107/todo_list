@@ -2,6 +2,11 @@ export const LOCALSTORAGE_KEYS = Object.freeze({
   TODO_LIST: "todoList",
 });
 
+export const MODAL_TITLES = Object.freeze({
+  DELETE_A_TASK: "Bạn chắc chắn muốn xóa công việc này?",
+  DELETE_ALL_TASKS: "Bạn chắc chắn muốn xóa tất cả công việc?",
+});
+
 export const COLORS = Object.freeze({
   //NEUTRAL COLORS
   BLACK: "#000000",

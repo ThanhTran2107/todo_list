@@ -5,7 +5,7 @@ import { TextField } from "../../components/text-field.component";
 
 import { COLORS } from "../../utilities/constant";
 
-import { isEmpty, trim } from "lodash-es";
+import { trim } from "lodash-es";
 import { useRef, useState } from "react";
 import styled from "styled-components";
 import PropTypes from "prop-types";
@@ -108,7 +108,7 @@ export const TodoList = ({
         render={(_, record) => (
           <RowName>
             {editRowId === record.id ? (
-              <Space>
+              <Space size='middle'>
                 <TextField
                   type="text"
                   defaultValue={record.name}
