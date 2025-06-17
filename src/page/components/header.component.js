@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import { v4 as uuidv4 } from "uuid";
 import PropTypes from "prop-types";
+import { isEmpty } from "lodash-es";
 
 import { useState } from "react";
 
@@ -13,7 +14,7 @@ import { TextField } from "./../../components/text-field.component";
 import { Space } from "./../../components/space.component";
 import { Notification } from "./../../components/notification.component";
 import { Dropdown } from "./../../components/dropdown.component";
-import { isEmpty } from "lodash-es";
+import { ComboBox } from "./../../components/combobox.component";
 
 const Title = styled.h3`
   display: flex;
@@ -44,10 +45,14 @@ const SearchButton = styled(FontAwesomeIcon)`
   }
 `;
 
-const StyledDiv = styled.div`
+const HeaderContainer = styled.div`
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  margin-bottom: 1rem;
+`;
+
+const StatisticDropdown = styled(Dropdown)`
+  text-align: right;
 `;
 
 export const Header = ({
@@ -55,9 +60,10 @@ export const Header = ({
   completedCount,
   uncompletedCount,
   isSearching,
-  handleResetData,
+  onResetOriginalData,
   onAddTodoList,
   onSearchTasksByName,
+  onFilterData,
 }) => {
   const [input, setInput] = useState("");
 
@@ -72,8 +78,14 @@ export const Header = ({
     },
   ];
 
+  const options = [
+    { label: "Tất cả", value: 0 },
+    { label: "Hoàn thành", value: true },
+    { label: "Chưa hoàn thành", value: false },
+  ];
+
   const handleInputChange = (e) => {
-    if (isEmpty(e.target.value)) handleResetData();
+    if (isEmpty(e.target.value)) onResetOriginalData();
 
     setInput(e.target.value);
   };
@@ -106,8 +118,8 @@ export const Header = ({
     <>
       <Title>Danh Sách Công Việc</Title>
 
-      <StyledDiv>
-        <Space>
+      <HeaderContainer>
+        <Space style={{ marginTop: "3rem" }}>
           <StyledTextField
             placeholder="Nhập công việc..."
             onChange={handleInputChange}
@@ -131,10 +143,19 @@ export const Header = ({
           />
         </Space>
 
-        <Dropdown menu={{ items }} trigger={["hover"]}>
-          <p>{todoCount} Công việc</p>
-        </Dropdown>
-      </StyledDiv>
+        <Space direction="vertical">
+          <StatisticDropdown menu={{ items }} trigger={["hover"]}>
+            <p>{todoCount} Công việc</p>
+          </StatisticDropdown>
+
+          <ComboBox
+            defaultValue="Tất cả"
+            style={{ width: "10rem" }}
+            options={options}
+            onChange={(value) => onFilterData(value)}
+          />
+        </Space>
+      </HeaderContainer>
     </>
   );
 };
@@ -144,7 +165,8 @@ Header.propTypes = {
   completedCount: PropTypes.number.isRequired,
   uncompletedCount: PropTypes.number.isRequired,
   isSearching: PropTypes.bool,
-  handleResetData: PropTypes.func.isRequired,
+  onResetOriginalData: PropTypes.func.isRequired,
   onAddTodoList: PropTypes.func.isRequired,
   onSearchTasksByName: PropTypes.func.isRequired,
+  onFilterData: PropTypes.func.isRequired,
 };

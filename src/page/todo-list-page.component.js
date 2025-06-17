@@ -1,6 +1,7 @@
 import { Space } from "../components/space.component";
 import { Notification } from "../components/notification.component";
 import { Header } from "./components/header.component";
+import { Modal } from "./../components/modal.component";
 
 import styled from "styled-components";
 import { TodoList } from "./components/todo-list.component";
@@ -21,7 +22,8 @@ const Wrapper = styled(Space)`
 
 export const TodoListPage = () => {
   const [todoList, setTodoList] = useState([]);
-  const [tempTodoList, setTempTodoList] = useState([]);
+  const [originalList, setOriginalList] = useState([]);
+  const [searchedList, setSearchedList] = useState([]);
   const [completedCount, setCompletedCount] = useState(0);
   const [uncompletedCount, setUncompletedCount] = useState(0);
 
@@ -34,40 +36,79 @@ export const TodoListPage = () => {
   };
 
   const resetOriginalData = () => {
-    if (isEmpty(tempTodoList)) return;
+    if (isEmpty(originalList)) return;
 
-    setTodoList(tempTodoList);
-    setTempTodoList([]);
+    setTodoList(originalList);
+    setOriginalList([]);
+    setSearchedList([]);
+  };
+
+  const resetSearchedData = () => setTodoList(searchedList);
+
+  const applyFilter = (data, value) => {
+    switch (value) {
+      case 0:
+        return data;
+
+      case true:
+        return filter(data, (todo) => todo.completed);
+
+      case false:
+        return filter(data, (todo) => !todo.completed);
+
+      default:
+        return data;
+    }
+  };
+
+  const showConfirmDeletion = (onOk) => {
+    Modal.confirm({
+      title: "Bạn có chắc chắn muốn xóa công việc này?",
+      okText: "Xóa",
+      okType: "danger",
+      cancelText: "Hủy",
+      onOk,
+    });
   };
 
   const onCompleteTask = (id) => {
-    setTodoList((prev) => {
-      const updatedList = map(prev, (todo) => {
-        if (todo.id === id) {
-          return { ...todo, completed: !todo.completed };
-        }
+    const updateItemStatus = (list) =>
+      map(list, (todo) => {
+        if (todo.id === id) return { ...todo, completed: !todo.completed };
+
         return todo;
       });
 
-      setLocalStorage("todoList", updatedList);
+    const updatedTodoList = updateItemStatus(todoList);
+    const updatedSearchedList = updateItemStatus(searchedList);
+    const updatedOriginalList = updateItemStatus(originalList);
 
-      return updatedList;
-    });
+    setTodoList(updatedTodoList);
+    setSearchedList(updatedSearchedList);
+    setOriginalList(updatedOriginalList);
 
     Notification.success({
-      message: "Cập nhật trạng thái công việc thành công",
+      message: "Cập nhật trạng thái công việc thành công!",
     });
   };
 
   const onDeleteTask = (id) => {
     if (!id) return;
 
-    const updatedList = filter(todoList, (todo) => todo.id !== id);
+    showConfirmDeletion(() => {
+      const deleteItem = (list) => filter(list, (todo) => todo.id !== id);
 
-    setTodoList(updatedList);
+      const updatedTodoList = deleteItem(todoList);
+      const updatedSearchedList = deleteItem(searchedList);
+      const updatedOriginalList = deleteItem(originalList);
 
-    Notification.success({
-      message: "Xoá công việc thành công",
+      setTodoList(updatedTodoList);
+      setOriginalList(updatedOriginalList);
+      setSearchedList(updatedSearchedList);
+
+      Notification.success({
+        message: "Xoá công việc thành công!",
+      });
     });
   };
 
@@ -80,8 +121,36 @@ export const TodoListPage = () => {
       removeVietnameseTones(todo.name).includes(searchName)
     );
 
-    setTempTodoList(todoList);
+    setOriginalList(todoList);
     setTodoList(found);
+    setSearchedList(found);
+  };
+
+  const onFilterData = (value) => {
+    const hasSearch = !isEmpty(searchedList);
+    const hasOriginal = !isEmpty(originalList);
+
+    if (!hasOriginal) setOriginalList(todoList);
+
+    if (value === 0) {
+      if (hasSearch) {
+        resetSearchedData();
+      } else {
+        resetOriginalData();
+      }
+
+      return;
+    }
+
+    const sourceData = hasSearch
+      ? searchedList
+      : hasOriginal
+      ? originalList
+      : todoList;
+
+    const result = applyFilter(sourceData, value);
+
+    setTodoList(result);
   };
 
   useEffect(() => {
@@ -102,10 +171,11 @@ export const TodoListPage = () => {
         todoCount={todoList.length}
         completedCount={completedCount}
         uncompletedCount={uncompletedCount}
-        isSearching={!isEmpty(tempTodoList)}
+        isSearching={!isEmpty(originalList)}
         onAddTodoList={setTodoList}
         onSearchTasksByName={onSearchTasksByName}
-        handleResetData={resetOriginalData}
+        onResetOriginalData={resetOriginalData}
+        onFilterData={onFilterData}
       />
 
       <TodoList
