@@ -1,8 +1,7 @@
-export const setLocalStorage = (key, value) =>
-  window.localStorage.setItem(key, JSON.stringify(value));
+export const setLocalStorage = (key, value) => window.localStorage.setItem(key, JSON.stringify(value));
 
 export const getLocalStorage = (key, defaultValue = undefined) => {
-  let parsedValue = "";
+  let parsedValue = '';
 
   try {
     const value = localStorage.getItem(key);
@@ -17,10 +16,10 @@ export const getLocalStorage = (key, defaultValue = undefined) => {
   return parsedValue;
 };
 
-export const removeVietnameseTones = (str) =>
+export const removeVietnameseTones = str =>
   str
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/đ/g, "d")
-    .replace(/Đ/g, "D")
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/g, 'd')
+    .replace(/Đ/g, 'D')
     .toLowerCase();
