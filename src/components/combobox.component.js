@@ -1,3 +1,3 @@
-import { Select } from "antd";
+import { Select } from 'antd';
 
 export { Select as ComboBox };

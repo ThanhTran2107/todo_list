@@ -1,3 +1,3 @@
-import { Space } from "antd";
+import { Space } from 'antd';
 
 export { Space };

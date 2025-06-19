@@ -1,21 +1,14 @@
-import { Space } from "../components/space.component";
-import { Notification } from "../components/notification.component";
-import { Header } from "./components/header.component";
-import { ConfirmDeletionModal } from "./components/confirm-deletion-modal.component";
+import { filter, isEmpty, map } from 'lodash-es';
+import { useEffect, useState } from 'react';
+import styled from 'styled-components';
 
-import { LOCALSTORAGE_KEYS, MODAL_TITLES } from "../utilities/constant";
-
-import styled from "styled-components";
-import { TodoList } from "./components/todo-list.component";
-
-import { useEffect, useState } from "react";
-import { map, filter, isEmpty } from "lodash-es";
-
-import {
-  getLocalStorage,
-  setLocalStorage,
-  removeVietnameseTones,
-} from "../utilities/services/common";
+import { Notification } from '../components/notification.component';
+import { Space } from '../components/space.component';
+import { LOCALSTORAGE_KEYS, MODAL_TITLES } from '../utilities/constant';
+import { getLocalStorage, removeVietnameseTones, setLocalStorage } from '../utilities/services/common';
+import { ConfirmDeletionModal } from './components/confirm-deletion-modal.component';
+import { Header } from './components/header.component';
+import { TodoList } from './components/todo-list.component';
 
 const Wrapper = styled(Space)`
   display: flex;
@@ -32,9 +25,9 @@ export const TodoListPage = () => {
   const [completedCount, setCompletedCount] = useState(0);
   const [uncompletedCount, setUncompletedCount] = useState(0);
 
-  const updateStatistics = (list) => {
-    const completedCount = filter(list, (todo) => todo.completed === true);
-    const uncompletedCount = filter(list, (todo) => todo.completed === false);
+  const updateStatistics = list => {
+    const completedCount = filter(list, todo => todo.completed === true);
+    const uncompletedCount = filter(list, todo => todo.completed === false);
 
     setCompletedCount(completedCount.length);
     setUncompletedCount(uncompletedCount.length);
@@ -46,10 +39,10 @@ export const TodoListPage = () => {
         return data;
 
       case true:
-        return filter(data, (todo) => todo.completed);
+        return filter(data, todo => todo.completed);
 
       case false:
-        return filter(data, (todo) => !todo.completed);
+        return filter(data, todo => !todo.completed);
 
       default:
         return data;
@@ -66,9 +59,9 @@ export const TodoListPage = () => {
 
   const handleResetSearchedData = () => setTodoList(searchedList);
 
-  const handleCompleteTask = (id) => {
-    const updateItemStatus = (list) =>
-      map(list, (todo) => {
+  const handleCompleteTask = id => {
+    const updateItemStatus = list =>
+      map(list, todo => {
         if (todo.id === id) return { ...todo, completed: !todo.completed };
 
         return todo;
@@ -83,25 +76,23 @@ export const TodoListPage = () => {
     setOriginalList(updatedOriginalList);
 
     Notification.success({
-      message: "Cập nhật trạng thái công việc thành công!",
+      message: 'Cập nhật trạng thái công việc thành công!',
     });
   };
 
-  const handleSearchTasksByName = (name) => {
+  const handleSearchTasksByName = name => {
     const searchName = removeVietnameseTones(name.trim());
 
     if (!searchName) return;
 
-    const found = filter(todoList, (todo) =>
-      removeVietnameseTones(todo.name).includes(searchName)
-    );
+    const found = filter(todoList, todo => removeVietnameseTones(todo.name).includes(searchName));
 
     setOriginalList(todoList);
     setTodoList(found);
     setSearchedList(found);
   };
 
-  const handleFilterData = (value) => {
+  const handleFilterData = value => {
     const hasSearch = !isEmpty(searchedList);
     const hasOriginal = !isEmpty(originalList);
 
@@ -117,20 +108,16 @@ export const TodoListPage = () => {
       return;
     }
 
-    const sourceData = hasSearch
-      ? searchedList
-      : hasOriginal
-      ? originalList
-      : todoList;
+    const sourceData = hasSearch ? searchedList : hasOriginal ? originalList : todoList;
 
     const result = applyFilter(sourceData, value);
 
     setTodoList(result);
   };
 
-  const handleUpdateTaskName = (updatedTaskName) => {
-    const updatedItemName = (list) =>
-      map(list, (todo) => {
+  const handleUpdateTaskName = updatedTaskName => {
+    const updatedItemName = list =>
+      map(list, todo => {
         if (todo.id === updatedTaskName.id) return { ...updatedTaskName };
 
         return todo;
@@ -145,14 +132,14 @@ export const TodoListPage = () => {
     setOriginalList(updatedOriginalList);
 
     Notification.success({
-      message: "Cập nhật công việc thành công!",
+      message: 'Cập nhật công việc thành công!',
     });
   };
 
-  const handleDeleteTask = (id) => {
+  const handleDeleteTask = id => {
     ConfirmDeletionModal({
       onOk: () => {
-        const deleteItem = (list) => filter(list, (todo) => todo.id !== id);
+        const deleteItem = list => filter(list, todo => todo.id !== id);
 
         const updatedTodoList = deleteItem(todoList);
         const updatedSearchedList = deleteItem(searchedList);
@@ -163,7 +150,7 @@ export const TodoListPage = () => {
         setSearchedList(updatedSearchedList);
 
         Notification.success({
-          message: "Xoá công việc thành công!",
+          message: 'Xoá công việc thành công!',
         });
       },
       title: DELETE_A_TASK,
@@ -177,7 +164,7 @@ export const TodoListPage = () => {
         setOriginalList([]);
         setSearchedList([]);
 
-        Notification.success({ message: "Xóa tất cả công việc thành công!" });
+        Notification.success({ message: 'Xóa tất cả công việc thành công!' });
       },
       title: DELETE_ALL_TASKS,
     });
@@ -202,7 +189,7 @@ export const TodoListPage = () => {
         completedCount={completedCount}
         uncompletedCount={uncompletedCount}
         isSearching={!isEmpty(originalList)}
-        hasCurrentTasks={todoList.length > 0 || originalList.length > 0}
+        hasCurrentTasks={!isEmpty(todoList || originalList)}
         onAddTodoList={setTodoList}
         onSearchTasksByName={handleSearchTasksByName}
         onResetOriginalData={handleResetOriginalData}

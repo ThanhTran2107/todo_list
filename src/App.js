@@ -1,5 +1,6 @@
-import { TodoListPage } from "./page/todo-list-page.component";
-import { ConfigProvider } from "antd";
+import { ConfigProvider } from 'antd';
+
+import { TodoListPage } from './page/todo-list-page.component';
 
 function App() {
   return (
