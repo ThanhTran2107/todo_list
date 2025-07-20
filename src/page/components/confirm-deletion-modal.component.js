@@ -7,9 +7,9 @@ export const ConfirmDeletionModal = options => {
 
   confirm({
     title,
-    okText: 'Xóa',
+    okText: 'Delete',
     okType: 'danger',
-    cancelText: 'Hủy',
+    cancelText: 'Cancel',
     onOk,
     ...options,
   });

@@ -2,6 +2,12 @@
 
 A simple and minimal To-Do List web application built with **ReactJS**. This app allows users to manage their daily tasks by adding, completing, and removing to-dos. Data is stored in the browser using `localStorage`, so tasks remain even after refreshing the page.
 
+## 📸 User Interface Preview
+
+Below is the current UI of the To-Do List App:
+
+![App Screenshot](./public/todo-screenshot.png)
+
 ## 🚀 Features
 
 - Add new tasks
@@ -21,7 +27,7 @@ Follow the steps below to set up and run the project locally.
 ```bash
 git clone https://github.com/your-username/todo-list.git
 cd todo-list
-````
+```
 
 ### 2. Install Dependencies
 
@@ -30,6 +36,7 @@ Make sure you have **Node.js (v16 or later)** and **npm** or **yarn** installed.
 ```bash
 npm install
 ```
+
 **Or**
 
 ```bash

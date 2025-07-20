@@ -4,8 +4,8 @@ export const LOCALSTORAGE_KEYS = Object.freeze({
 });
 
 export const MODAL_TITLES = Object.freeze({
-  DELETE_A_TASK: 'Bạn chắc chắn muốn xóa công việc này?',
-  DELETE_ALL_TASKS: 'Bạn chắc chắn muốn xóa tất cả công việc?',
+  DELETE_A_TASK: 'Are you sure you want to delete this task?',
+  DELETE_ALL_TASKS: 'Are you sure you want to delete all tasks?',
 });
 
 export const COLORS = Object.freeze({

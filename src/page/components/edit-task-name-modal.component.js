@@ -28,12 +28,12 @@ export const EditTaskNameModal = ({ isOpen, selectedRow, onUpdateTaskName, onClo
 
   return (
     <Modal
-      title="Cập Nhật Công Việc"
+      title="Update Task"
       open={isOpen}
       closable={!isOpen}
       maskClosable={!isOpen}
-      okText="Cập nhật"
-      cancelText="Hủy"
+      okText="Update"
+      cancelText="Cancel"
       onOk={() => handleUpdateButtonClick(selectedRow)}
       onCancel={onCloseEditModal}
       okButtonProps={{ disabled: !hasChanged }}
@@ -46,12 +46,12 @@ export const EditTaskNameModal = ({ isOpen, selectedRow, onUpdateTaskName, onClo
         style={{ marginTop: '1.5rem' }}
       >
         <Form.Item
-          label="Tên công việc"
+          label="Task Name"
           name="nameField"
           rules={[
             {
               required: true,
-              message: 'Vui lòng nhập tên công việc cần cập nhật!',
+              message: 'Please enter the task name to update!',
             },
             {
               type: 'string',
@@ -60,14 +60,14 @@ export const EditTaskNameModal = ({ isOpen, selectedRow, onUpdateTaskName, onClo
             {
               validator: (_, value) =>
                 value && trim(value) === selectedRow.name
-                  ? Promise.reject(new Error('Tên công việc mới phải khác với tên cũ!'))
+                  ? Promise.reject(new Error('The new task name must be different from the old one!'))
                   : Promise.resolve(),
             },
           ]}
         >
           <TextField
             type="text"
-            placeholder="Nhập tên công việc..."
+            placeholder="Enter a task name..."
             defaultValue={selectedRow.name}
             onChange={() => setHasChanged(true)}
           />

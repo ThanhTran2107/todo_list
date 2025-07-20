@@ -76,9 +76,10 @@ export const TodoList = ({ todoList, onComplete, onDelete, onUpdateTaskName }) =
   return (
     <TableWrapper>
       <Table dataSource={todoList} onChange={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-        <Column title="STT" key="index" render={(_, __, index) => index + 1} />
+        <Column align="center" title="No." key="index" render={(_, __, index) => index + 1} />
         <Column
-          title="Tên Công Việc"
+          align="center"
+          title="Task name"
           key="name"
           render={(_, record) => (
             <RowName>
@@ -105,14 +106,14 @@ export const TodoList = ({ todoList, onComplete, onDelete, onUpdateTaskName }) =
 
         <Column
           align="center"
-          title="Trạng thái"
+          title="Status"
           dataIndex="completed"
           key="completed"
-          render={completed => (completed ? <p>Hoàn thành</p> : <p>Chưa hoàn thành</p>)}
+          render={completed => (completed ? <p>Completed</p> : <p>Incompleted</p>)}
         />
         <Column
           align="center"
-          title="Tác vụ"
+          title="Actions"
           dataIndex="completed"
           key="actions"
           render={(completed, record) => (

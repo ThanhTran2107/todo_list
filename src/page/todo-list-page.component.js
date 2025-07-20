@@ -76,7 +76,7 @@ export const TodoListPage = () => {
     setOriginalList(updatedOriginalList);
 
     Notification.success({
-      message: 'Cập nhật trạng thái công việc thành công!',
+      message: 'Update the task status successfully!',
     });
   };
 
@@ -132,7 +132,7 @@ export const TodoListPage = () => {
     setOriginalList(updatedOriginalList);
 
     Notification.success({
-      message: 'Cập nhật công việc thành công!',
+      message: 'Update the task name successfully!',
     });
   };
 
@@ -150,7 +150,7 @@ export const TodoListPage = () => {
         setSearchedList(updatedSearchedList);
 
         Notification.success({
-          message: 'Xoá công việc thành công!',
+          message: 'Delete the task successfully!',
         });
       },
       title: DELETE_A_TASK,
@@ -164,7 +164,7 @@ export const TodoListPage = () => {
         setOriginalList([]);
         setSearchedList([]);
 
-        Notification.success({ message: 'Xóa tất cả công việc thành công!' });
+        Notification.success({ message: 'Delete all tasks successfully!' });
       },
       title: DELETE_ALL_TASKS,
     });

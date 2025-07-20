@@ -82,19 +82,19 @@ export const Header = ({
 
   const items = [
     {
-      label: <p>{completedCount} Hoàn thành</p>,
+      label: <p>{completedCount} Completed</p>,
       key: completedCount,
     },
     {
-      label: <p>{uncompletedCount} Chưa hoàn thành</p>,
+      label: <p>{uncompletedCount} Incompleted</p>,
       key: uncompletedCount,
     },
   ];
 
   const options = [
-    { label: 'Tất cả', value: 0 },
-    { label: 'Hoàn thành', value: true },
-    { label: 'Chưa hoàn thành', value: false },
+    { label: 'All', value: 0 },
+    { label: 'Completed', value: true },
+    { label: 'Incompleted', value: false },
   ];
 
   const handleInputChange = e => {
@@ -108,7 +108,7 @@ export const Header = ({
 
     if (!newTodo) {
       Notification.error({
-        message: 'Công việc không được để trống',
+        message: 'Task name cannot be empty!',
       });
 
       return;
@@ -123,18 +123,18 @@ export const Header = ({
       ...prev,
     ]);
 
-    Notification.success({ message: 'Thêm công việc thành công' });
+    Notification.success({ message: 'Add a task successfully!' });
     setInput('');
   };
 
   return (
     <HeaderWrapper>
-      <Title>Danh Sách Công Việc</Title>
+      <Title>Workday Task Tracker</Title>
 
       <HeaderContainer>
         <Space style={{ marginTop: '3rem' }}>
           <StyledTextField
-            placeholder="Nhập công việc..."
+            placeholder="Enter a task..."
             onChange={handleInputChange}
             onKeyDown={e => {
               if (!isEmpty(input) && e.key === 'Enter') handleClickAddNewTasks();
@@ -143,11 +143,11 @@ export const Header = ({
           />
 
           <AddButton disabled={!input || isSearching} type="primary" onClick={() => handleClickAddNewTasks()}>
-            Thêm
+            Add
           </AddButton>
 
           <DeleteAllButton disabled={todoCount === 0} onClick={() => onDeleteAllTasks()}>
-            Xóa tất cả
+            Delete All
           </DeleteAllButton>
 
           <SearchButton icon={faSearch} onClick={() => onSearchTasksByName(input)} />
@@ -155,11 +155,11 @@ export const Header = ({
 
         <Space direction="vertical">
           <StatisticDropdown menu={{ items }} trigger={['hover']}>
-            <p>{todoCount} Công việc</p>
+            {todoCount > 1 ? <p>{todoCount} Tasks</p> : <p>{todoCount} Task</p>}
           </StatisticDropdown>
 
           <ComboBox
-            defaultValue="Tất cả"
+            defaultValue="All"
             style={{ width: '10rem' }}
             options={options}
             onChange={value => onFilterData(value)}
