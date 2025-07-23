@@ -103,7 +103,13 @@ export const TodoList = ({ todoList, onComplete, onDelete, onUpdateTaskName }) =
             </RowName>
           )}
         />
-
+        <Column
+          align="center"
+          title="Created At"
+          dataIndex="createdAt"
+          key="createdAt"
+          render={createdAt => <span>{createdAt}</span>}
+        />
         <Column
           align="center"
           title="Status"

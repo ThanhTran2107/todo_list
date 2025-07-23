@@ -105,6 +105,7 @@ export const Header = ({
 
   const handleClickAddNewTasks = () => {
     const newTodo = input.trim();
+    const createdAt = new Date();
 
     if (!newTodo) {
       Notification.error({
@@ -118,6 +119,7 @@ export const Header = ({
       {
         id: uuidv4(),
         name: newTodo,
+        createdAt: createdAt.toLocaleString(),
         completed: false,
       },
       ...prev,
