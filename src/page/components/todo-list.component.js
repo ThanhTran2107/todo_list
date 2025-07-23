@@ -22,6 +22,23 @@ const TableWrapper = styled.div`
   }
 `;
 
+const StyledTable = styled(Table)`
+  margin: 0.5rem;
+
+  .ant-pagination-prev,
+  .ant-pagination-next {
+    background-color: ${COLORS.WHITE} !important;
+  }
+
+  .ant-pagination-item {
+    background-color: ${COLORS.WHITE} !important;
+  }
+
+  .ant-pagination-item:hover {
+    border-color: ${COLORS.BLUE} !important;
+  }
+`;
+
 const StyledButton = styled(FontAwesomeIcon)`
   font-size: 1.3rem;
   cursor: pointer;
@@ -75,7 +92,7 @@ export const TodoList = ({ todoList, onComplete, onDelete, onUpdateTaskName }) =
 
   return (
     <TableWrapper>
-      <Table dataSource={todoList} onChange={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+      <StyledTable dataSource={todoList} onChange={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
         <Column align="center" title="No." key="index" render={(_, __, index) => index + 1} />
         <Column
           align="center"
@@ -136,7 +153,7 @@ export const TodoList = ({ todoList, onComplete, onDelete, onUpdateTaskName }) =
             </Space>
           )}
         />
-      </Table>
+      </StyledTable>
     </TableWrapper>
   );
 };

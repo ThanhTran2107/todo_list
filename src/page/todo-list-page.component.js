@@ -1,18 +1,22 @@
 import { filter, isEmpty, map } from 'lodash-es';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import { Notification } from '../components/notification.component';
-import { Space } from '../components/space.component';
-import { LOCALSTORAGE_KEYS, MODAL_TITLES } from '../utilities/constant';
+import { ThemeSelector } from '../components/theme-selector.component';
+import { CUSTOM_NOTIFICATION, LOCALSTORAGE_KEYS, MODAL_TITLES } from '../utilities/constant';
 import { getLocalStorage, removeVietnameseTones, setLocalStorage } from '../utilities/services/common';
 import { ConfirmDeletionModal } from './components/confirm-deletion-modal.component';
 import { Header } from './components/header.component';
 import { TodoList } from './components/todo-list.component';
 
-const Wrapper = styled(Space)`
+const Wrapper = styled.div`
+  background-color: var(--background-color);
+  color: var(--text-color);
+  min-height: 100vh;
   display: flex;
-  margin: 1rem;
+  flex-direction: column;
+  align-items: flex-end;
 `;
 
 const { TODO_LIST, ORIGINAL_LIST } = LOCALSTORAGE_KEYS;
@@ -24,6 +28,7 @@ export const TodoListPage = () => {
   const [searchedList, setSearchedList] = useState([]);
   const [completedCount, setCompletedCount] = useState(0);
   const [uncompletedCount, setUncompletedCount] = useState(0);
+  const hasResetFilterRef = useRef(0);
 
   const updateStatistics = list => {
     const completedCount = filter(list, todo => todo.completed === true);
@@ -36,12 +41,18 @@ export const TodoListPage = () => {
   const applyFilter = (data, value) => {
     switch (value) {
       case 0:
+        hasResetFilterRef.current = 0;
+
         return data;
 
       case true:
+        hasResetFilterRef.current = 1;
+
         return filter(data, todo => todo.completed);
 
       case false:
+        hasResetFilterRef.current = 2;
+
         return filter(data, todo => !todo.completed);
 
       default:
@@ -52,12 +63,18 @@ export const TodoListPage = () => {
   const handleResetOriginalData = () => {
     if (isEmpty(originalList)) return;
 
+    hasResetFilterRef.current = 0;
+
     setTodoList(originalList);
-    setOriginalList([]);
     setSearchedList([]);
   };
 
   const handleResetSearchedData = () => setTodoList(searchedList);
+
+  const handleAddNewTasks = newTask => {
+    setTodoList(prev => [newTask, ...prev]);
+    setOriginalList(prev => [newTask, ...prev]);
+  };
 
   const handleCompleteTask = id => {
     const updateItemStatus = list =>
@@ -77,6 +94,7 @@ export const TodoListPage = () => {
 
     Notification.success({
       message: 'Update the task status successfully!',
+      ...CUSTOM_NOTIFICATION,
     });
   };
 
@@ -85,9 +103,8 @@ export const TodoListPage = () => {
 
     if (!searchName) return;
 
-    const found = filter(todoList, todo => removeVietnameseTones(todo.name).includes(searchName));
+    const found = filter(originalList, todo => removeVietnameseTones(todo.name).includes(searchName));
 
-    setOriginalList(todoList);
     setTodoList(found);
     setSearchedList(found);
   };
@@ -99,11 +116,7 @@ export const TodoListPage = () => {
     if (!hasOriginal) setOriginalList(todoList);
 
     if (value === 0) {
-      if (hasSearch) {
-        handleResetSearchedData();
-      } else {
-        handleResetOriginalData();
-      }
+      hasSearch ? handleResetSearchedData() : handleResetOriginalData();
 
       return;
     }
@@ -133,6 +146,7 @@ export const TodoListPage = () => {
 
     Notification.success({
       message: 'Update the task name successfully!',
+      ...CUSTOM_NOTIFICATION,
     });
   };
 
@@ -151,6 +165,7 @@ export const TodoListPage = () => {
 
         Notification.success({
           message: 'Delete the task successfully!',
+          ...CUSTOM_NOTIFICATION,
         });
       },
       title: DELETE_A_TASK,
@@ -164,7 +179,7 @@ export const TodoListPage = () => {
         setOriginalList([]);
         setSearchedList([]);
 
-        Notification.success({ message: 'Delete all tasks successfully!' });
+        Notification.success({ message: 'Delete all tasks successfully!', ...CUSTOM_NOTIFICATION });
       },
       title: DELETE_ALL_TASKS,
     });
@@ -177,12 +192,14 @@ export const TodoListPage = () => {
     if (!isEmpty(originalListData)) {
       updateStatistics(originalListData);
       setTodoList(originalListData);
+      setOriginalList(originalListData);
 
       return;
     }
 
     updateStatistics(todoListData);
     setTodoList(todoListData);
+    setOriginalList(originalListData);
   }, []);
 
   useEffect(() => {
@@ -190,17 +207,19 @@ export const TodoListPage = () => {
 
     setLocalStorage(TODO_LIST, [...todoList]);
     setLocalStorage(ORIGINAL_LIST, [...originalList]);
-  }, [todoList]);
+  }, [todoList, originalList]);
 
   return (
-    <Wrapper direction="vertical">
+    <Wrapper>
+      <ThemeSelector />
+
       <Header
         todoCount={todoList.length}
         completedCount={completedCount}
         uncompletedCount={uncompletedCount}
-        isSearching={!isEmpty(originalList)}
-        hasCurrentTasks={!isEmpty(todoList || originalList)}
-        onAddTodoList={setTodoList}
+        hasCurrentTasks={!isEmpty(originalList)}
+        hasResetFilter={hasResetFilterRef.current}
+        onAddTodoList={handleAddNewTasks}
         onSearchTasksByName={handleSearchTasksByName}
         onResetOriginalData={handleResetOriginalData}
         onFilterData={handleFilterData}

@@ -10,3 +10,13 @@ body {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
+
+[data-theme='dark'] {
+  --background-color: rgb(35, 33, 33);
+  --text-color: white;
+}
+
+[data-theme='light'] {
+  --background-color: white;
+  --text-color: black;
+}

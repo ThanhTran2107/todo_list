@@ -6,7 +6,7 @@ import { useState } from 'react';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 
-import { COLORS } from '../../utilities/constant';
+import { COLORS, CUSTOM_NOTIFICATION } from '../../utilities/constant';
 import { Button } from './../../components/button.component';
 import { ComboBox } from './../../components/combobox.component';
 import { Dropdown } from './../../components/dropdown.component';
@@ -28,20 +28,31 @@ const Title = styled.h3`
 const StyledTextField = styled(TextField)`
   width: 30rem;
   height: 2.5rem;
+  margin-left: 0.5rem;
 
   @media (max-width: 768px) {
     width: 10rem;
   }
 `;
 
+const DisabledButtonStyle = `
+  &:disabled {
+    background-color: ${COLORS.LIGHT_GRAY} !important;
+    cursor: not-allowed;
+    opacity: 1;
+  }
+`;
+
 const AddButton = styled(Button)`
   height: 2.5rem;
   cursor: pointer;
+  ${DisabledButtonStyle}
 `;
 
 const DeleteAllButton = styled(Button)`
   height: 2.5rem;
   cursor: pointer;
+  ${DisabledButtonStyle}
 `;
 
 const SearchButton = styled(FontAwesomeIcon)`
@@ -64,14 +75,15 @@ const HeaderContainer = styled.div`
 
 const StatisticDropdown = styled(Dropdown)`
   text-align: right;
+  margin-right: 0.5rem;
 `;
 
 export const Header = ({
   todoCount,
   completedCount,
   uncompletedCount,
-  isSearching,
   hasCurrentTasks,
+  hasResetFilter,
   onResetOriginalData,
   onAddTodoList,
   onSearchTasksByName,
@@ -104,28 +116,28 @@ export const Header = ({
   };
 
   const handleClickAddNewTasks = () => {
+    onResetOriginalData();
+
     const newTodo = input.trim();
     const createdAt = new Date();
 
     if (!newTodo) {
       Notification.error({
         message: 'Task name cannot be empty!',
+        ...CUSTOM_NOTIFICATION,
       });
 
       return;
     }
 
-    onAddTodoList(prev => [
-      {
-        id: uuidv4(),
-        name: newTodo,
-        createdAt: createdAt.toLocaleString(),
-        completed: false,
-      },
-      ...prev,
-    ]);
+    onAddTodoList({
+      id: uuidv4(),
+      name: newTodo,
+      createdAt: createdAt.toLocaleString(),
+      completed: false,
+    });
 
-    Notification.success({ message: 'Add a task successfully!' });
+    Notification.success({ message: 'Add a task successfully!', ...CUSTOM_NOTIFICATION });
     setInput('');
   };
 
@@ -144,7 +156,7 @@ export const Header = ({
             value={input}
           />
 
-          <AddButton disabled={!input || isSearching} type="primary" onClick={() => handleClickAddNewTasks()}>
+          <AddButton disabled={!input} type="primary" onClick={() => handleClickAddNewTasks()}>
             Add
           </AddButton>
 
@@ -162,7 +174,15 @@ export const Header = ({
 
           <ComboBox
             defaultValue="All"
-            style={{ width: '10rem' }}
+            value={hasResetFilter === 0 ? 'All' : hasResetFilter === 1 ? 'Completed' : 'Incompleted'}
+            style={{
+              width: '10rem',
+              marginRight: '0.5rem',
+              backgroundColor: !hasCurrentTasks ? COLORS.LIGHT_GRAY : undefined,
+              cursor: !hasCurrentTasks ? 'not-allowed' : 'pointer',
+              border: !hasCurrentTasks ? `1px solid ? ${COLORS.LIGHT_GRAY}` : undefined,
+              borderRadius: !hasCurrentTasks ? '0.375rem' : undefined,
+            }}
             options={options}
             onChange={value => onFilterData(value)}
             disabled={!hasCurrentTasks}
@@ -177,8 +197,8 @@ Header.propTypes = {
   todoCount: PropTypes.number.isRequired,
   completedCount: PropTypes.number.isRequired,
   uncompletedCount: PropTypes.number.isRequired,
-  isSearching: PropTypes.bool,
   hasCurrentTasks: PropTypes.bool,
+  hasResetFilter: PropTypes.number.isRequired,
   onResetOriginalData: PropTypes.func.isRequired,
   onAddTodoList: PropTypes.func.isRequired,
   onSearchTasksByName: PropTypes.func.isRequired,

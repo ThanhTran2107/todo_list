@@ -1,7 +1,33 @@
+import { faMoon, faSun } from '@fortawesome/free-solid-svg-icons';
+import { keyBy } from 'lodash-es';
+
+export const CUSTOM_NOTIFICATION = Object.freeze({
+  pauseOnHover: false,
+  duration: 1,
+  closeIcon: false,
+});
+
 export const LOCALSTORAGE_KEYS = Object.freeze({
   TODO_LIST: 'todoList',
   ORIGINAL_LIST: 'originalList',
+  THEME: 'theme',
 });
+
+export const ATTRIBUTE_DATA = Object.freeze({
+  DATA_THEME: 'data-theme',
+});
+
+export const THEME_MODES = Object.freeze({
+  LIGHT: 'light',
+  DARK: 'dark',
+});
+
+export const THEME_OPTIONS = [
+  { mode: THEME_MODES.LIGHT, icon: faSun },
+  { mode: THEME_MODES.DARK, icon: faMoon },
+];
+
+export const THEME_OPTIONS_HASH = keyBy(THEME_OPTIONS, 'mode');
 
 export const MODAL_TITLES = Object.freeze({
   DELETE_A_TASK: 'Are you sure you want to delete this task?',
@@ -21,6 +47,8 @@ export const COLORS = Object.freeze({
   //GRAY COLORS
   FOG_GRAY: '#726f6f75',
   DARK_GRAY: '#3b3b3b',
+  LIGHT_GRAY: '#e6e6e6',
+  MEDIUM_GRAY: '#666',
 
   //PINK COLORS
   DARK_PINK: '#70114b',

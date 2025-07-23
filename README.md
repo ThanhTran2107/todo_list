@@ -8,6 +8,8 @@ Below is the current UI of the To-Do List App:
 
 ![App Screenshot](./public/todo-screenshot.png)
 
+Live Demo: https://dailytask-tsw.onrender.com/
+
 ## 🚀 Features
 
 - Add new tasks
